@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    
+    <div class="container">
+        <div class="header">
+            <a href="/login"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <a href="/register"><i class="fas fa-user-plus"></i> Register</a>
+            <h1>HELLO, <span id="username">UserName!</span></h1>
+            <div id="stuffs"></div>
+        </div>
+        <div class="weather">
+            <h2>WEATHER DATA</h2>
+            <input type="text" placeholder="Enter city..." id="city-input">
+            <button id="fetch-weather-button">Enter</button>
+            <div id="weather-data">
+                <p>City: <span id="city"></span></p>
+                <p>Country: <span id="country"></span></p>
+                <p>Temperature: <span id="temperature"></span>°F</p>
+                <p>Humidity: <span id="humidity"></span>%</p>
+                <p>Wind Speed: <span id="windSpeed"></span> m/s</p>
+            </div>
+        </div>
+        <div class="news">
+            <h2>HEADLINE NEWS</h2>
+            <div id="news"></div>
+        </div>
+        <div class="quotes">
+            <h2>INSPIRING QUOTES</h2>
+            <div id="quote-data">Loading quote...</div>
+        </div>
+    </div>
+    <script src="scripts.js"></script>
+    <script>
+        async function fetchWeather(city) {
+            try {
+                const response = await fetch(`/weather?city=${city}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('city').textContent = data.city;
+                    document.getElementById('country').textContent = data.country;
+                    document.getElementById('temperature').textContent = data.temperature;
+                    document.getElementById('humidity').textContent = data.humidity;
+                    document.getElementById('windSpeed').textContent = data.windSpeed;
+                } else {
+                    document.getElementById('weather-data').textContent = data.error;
+                }
+            } catch (error) {
+                document.getElementById('weather-data').textContent = 'Error fetching weather data.';
+            }
+        }
+
+        async function fetchNews() {
+            try {
+                const response = await fetch('/news');
+                const data = await response.json();
+
+                if (response.ok) {
+                    const newsContainer = document.getElementById('newss');
+                    newsContainer.innerHTML = '';
+                    data.forEach(article => {
+                        const articleElement = document.createElement('div');
+                        articleElement.innerHTML = `<h2>${article.title}</h2><p>${article.description}</p><a href="${article.url}">Read more</a>`;
+                        newsContainer.appendChild(articleElement);
+                    });
+                } else {
+                    document.getElementById('newss').textContent = data.error;
+                }
+            } catch (error) {
+                document.getElementById('newss').textContent = 'Error fetching news.';
+            }
+        }
+
+        async function fetchQuote() {
+            try {
+                const response = await fetch('/quote');
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('quote-data').textContent = data.quote;
+                } else {
+                    document.getElementById('quote-data').textContent = data.error;
+                }
+            } catch (error) {
+                document.getElementById('quote-data').textContent = 'Error fetching quote.';
+            }
+        }
+
+        document.getElementById('fetch-weather-button').addEventListener('click', () => {
+            const city = document.getElementById('city-input').value;
+            fetchWeather(city);
+        });
+
+        fetchNews();
+        fetchQuote();
+    </script>
+</body>
+</html>
